@@ -1,0 +1,17 @@
+{
+  "name": "avxbs-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000 --hostname 0.0.0.0",
+    "build": "next build --webpack",
+    "start": "next start -p 3000",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "lucide-react": "^0.475.0",
+    "next": "latest",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

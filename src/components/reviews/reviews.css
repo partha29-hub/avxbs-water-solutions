@@ -1,0 +1,646 @@
+/* ==========================================================================
+   AVXBS – Client Reviews Testimonial Carousel
+   Exact Match to Reference Image 2: Rectangular Cards with Integrated Headers
+   ========================================================================== */
+
+.avx-reviews-module {
+  position: relative;
+  width: 100%;
+  padding: 60px 24px 68px;
+  background-color: #ffffff;
+  color: #0b1a30;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-top: 1px solid #f1f5f9;
+}
+
+.reviews-container {
+  max-width: 1260px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   Section Header
+   ========================================================================== */
+.reviews-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.reviews-subtitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #0072ce;
+  margin: 0 0 6px;
+  display: block;
+}
+
+.reviews-title {
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #0b1a30;
+  margin: 0;
+}
+
+.reviews-header-divider {
+  width: 52px;
+  height: 3px;
+  background: linear-gradient(90deg, #0072ce 0%, #00b4d8 100%);
+  margin: 12px auto 0;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 114, 206, 0.3);
+}
+
+/* ==========================================================================
+   Loading & Empty States
+   ========================================================================== */
+.reviews-loading,
+.reviews-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0072ce;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-quote-icon {
+  color: #0072ce;
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   Carousel Stage & Rectangular Review Cards (5-Card 3D Layout)
+   ========================================================================== */
+.reviews-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 24px 0 36px;
+}
+
+.premium-reviews-stage {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  user-select: none;
+  cursor: grab;
+}
+
+.premium-reviews-stage:active {
+  cursor: grabbing;
+}
+
+/* Complete Tall Rectangular Review Card */
+.review-carousel-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 350px;
+  max-width: 88vw;
+  height: 385px;
+  min-height: 385px;
+  border-radius: 22px;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.5s ease,
+              filter 0.5s ease,
+              box-shadow 0.4s ease,
+              border-color 0.4s ease,
+              background 0.4s ease;
+  will-change: transform, opacity, filter;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   Center Featured Card: Premium Dark Navy-Blue Spotlight (Largest, diff = 0)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-center-active {
+  transform: translate(-50%, -50%) scale(1.06);
+  z-index: 10;
+  opacity: 1;
+  filter: none;
+  background: linear-gradient(150deg, #07152b 0%, #030b19 100%);
+  border: 1.5px solid rgba(0, 180, 216, 0.55);
+  box-shadow: 0 24px 60px -10px rgba(0, 32, 70, 0.5), 0 0 26px rgba(0, 180, 216, 0.18);
+  cursor: default;
+}
+
+.review-carousel-card.card-center-active .quote-square-box {
+  background: rgba(0, 180, 216, 0.16);
+  color: #00b4d8;
+  border: 1px solid rgba(0, 180, 216, 0.35);
+}
+
+.review-carousel-card.card-center-active .card-avatar-circle {
+  border: 2px solid #00b4d8;
+  box-shadow: 0 0 10px rgba(0, 180, 216, 0.35);
+}
+
+.review-carousel-card.card-center-active .card-customer-name {
+  color: #ffffff;
+}
+
+.review-carousel-card.card-center-active .card-customer-type {
+  color: #94a3b8;
+}
+
+.review-carousel-card.card-center-active .card-review-text {
+  color: #f1f5f9;
+}
+
+.review-carousel-card.card-center-active .card-bottom-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.review-carousel-card.card-center-active .badge-category {
+  background: rgba(0, 180, 216, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+}
+
+.review-carousel-card.card-center-active .badge-featured {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.review-carousel-card.card-center-active .badge-verified {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   Side Cards Shared (White Background, Clean Borders, Rating & Verified)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-neighbor-left,
+.review-carousel-card.card-neighbor-right {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+  cursor: pointer;
+}
+
+.review-carousel-card.card-neighbor-left .quote-square-box,
+.review-carousel-card.card-neighbor-right .quote-square-box {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.review-carousel-card.card-neighbor-left .card-avatar-circle,
+.review-carousel-card.card-neighbor-right .card-avatar-circle {
+  border: 2px solid #cbd5e1;
+}
+
+.review-carousel-card.card-neighbor-left .card-customer-name,
+.review-carousel-card.card-neighbor-right .card-customer-name {
+  color: #0b1a30;
+}
+
+.review-carousel-card.card-neighbor-left .card-customer-type,
+.review-carousel-card.card-neighbor-right .card-customer-type {
+  color: #64748b;
+}
+
+.review-carousel-card.card-neighbor-left .card-review-text,
+.review-carousel-card.card-neighbor-right .card-review-text {
+  color: #334155;
+}
+
+.review-carousel-card.card-neighbor-left .card-bottom-footer,
+.review-carousel-card.card-neighbor-right .card-bottom-footer {
+  border-top: 1px solid #f1f5f9;
+}
+
+.review-carousel-card.card-neighbor-left .badge-category,
+.review-carousel-card.card-neighbor-right .badge-category {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.review-carousel-card.card-neighbor-left .badge-featured,
+.review-carousel-card.card-neighbor-right .badge-featured {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.review-carousel-card.card-neighbor-left .badge-verified,
+.review-carousel-card.card-neighbor-right .badge-verified {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+/* --------------------------------------------------------------------------
+   1. Nearest Side Cards: Readable, Clickable (diff = -1 & diff = +1)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-neighbor-left-1 {
+  transform: translate(calc(-50% - 280px), -50%) scale(0.90);
+  z-index: 6;
+  opacity: 0.78;
+  filter: blur(0.25px);
+}
+
+.review-carousel-card.card-neighbor-right-1 {
+  transform: translate(calc(-50% + 280px), -50%) scale(0.90);
+  z-index: 6;
+  opacity: 0.78;
+  filter: blur(0.25px);
+}
+
+.review-carousel-card.card-neighbor-left-1:hover {
+  opacity: 0.95;
+  filter: none;
+  border-color: #93c5fd;
+  box-shadow: 0 14px 36px rgba(0, 114, 206, 0.12);
+  transform: translate(calc(-50% - 280px), -52%) scale(0.92);
+}
+
+.review-carousel-card.card-neighbor-right-1:hover {
+  opacity: 0.95;
+  filter: none;
+  border-color: #93c5fd;
+  box-shadow: 0 14px 36px rgba(0, 114, 206, 0.12);
+  transform: translate(calc(-50% + 280px), -52%) scale(0.92);
+}
+
+/* --------------------------------------------------------------------------
+   2. Outer Side Cards: Progressively Smaller & Faded (diff = -2 & diff = +2)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-neighbor-left-2 {
+  transform: translate(calc(-50% - 510px), -50%) scale(0.76);
+  z-index: 3;
+  opacity: 0.42;
+  filter: blur(1px);
+}
+
+.review-carousel-card.card-neighbor-right-2 {
+  transform: translate(calc(-50% + 510px), -50%) scale(0.76);
+  z-index: 3;
+  opacity: 0.42;
+  filter: blur(1px);
+}
+
+.review-carousel-card.card-neighbor-left-2:hover {
+  opacity: 0.70;
+  filter: blur(0.3px);
+  border-color: #93c5fd;
+  transform: translate(calc(-50% - 510px), -51%) scale(0.78);
+}
+
+.review-carousel-card.card-neighbor-right-2:hover {
+  opacity: 0.70;
+  filter: blur(0.3px);
+  border-color: #93c5fd;
+  transform: translate(calc(-50% + 510px), -51%) scale(0.78);
+}
+
+/* --------------------------------------------------------------------------
+   3. Hidden Cards (|diff| > 2)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-hidden {
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Internal Card Elements
+   ========================================================================== */
+
+/* 1. Card Top Header */
+.card-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.quote-square-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.card-avatar-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.card-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-avatar-initials {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0284c7;
+}
+
+.customer-text-block {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-width: 0;
+}
+
+.card-customer-name {
+  font-size: 16.5px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.card-customer-type {
+  font-size: 12.5px;
+  font-weight: 500;
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.header-badges-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.badge-icon {
+  flex-shrink: 0;
+}
+
+/* 2. Card Middle Body */
+.card-middle-body {
+  margin: 18px 0 16px;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  text-align: left;
+  overflow: hidden;
+}
+
+.card-review-text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+/* 3. Card Bottom Footer */
+.card-bottom-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  transition: border-color 0.3s ease;
+}
+
+.card-star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-icon {
+  flex-shrink: 0;
+}
+
+.star-gold {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
+.star-muted {
+  color: #cbd5e1;
+  fill: #cbd5e1;
+}
+
+/* ==========================================================================
+   Responsive Adaptations (5-Card 3D Flow with Tall Rectangles)
+   ========================================================================== */
+
+/* Laptop / Compact Desktop (1025px to 1350px) */
+@media (max-width: 1350px) and (min-width: 1025px) {
+  .premium-reviews-stage {
+    height: 420px;
+  }
+
+  .review-carousel-card {
+    width: 320px;
+    height: 370px;
+    min-height: 370px;
+    padding: 24px 20px;
+  }
+
+  .review-carousel-card.card-neighbor-left-1 {
+    transform: translate(calc(-50% - 245px), -50%) scale(0.88);
+  }
+
+  .review-carousel-card.card-neighbor-right-1 {
+    transform: translate(calc(-50% + 245px), -50%) scale(0.88);
+  }
+
+  .review-carousel-card.card-neighbor-left-2 {
+    transform: translate(calc(-50% - 445px), -50%) scale(0.74);
+  }
+
+  .review-carousel-card.card-neighbor-right-2 {
+    transform: translate(calc(-50% + 445px), -50%) scale(0.74);
+  }
+}
+
+/* Tablet (769px to 1024px): One card on each side of the featured card (3 visible) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .premium-reviews-stage {
+    height: 410px;
+  }
+
+  .review-carousel-card {
+    width: 330px;
+    height: 375px;
+    min-height: 375px;
+    padding: 24px 22px;
+  }
+
+  .review-carousel-card.card-center-active {
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+
+  .review-carousel-card.card-neighbor-left-1 {
+    transform: translate(calc(-50% - 260px), -50%) scale(0.88);
+    opacity: 0.74;
+    filter: blur(0.3px);
+  }
+
+  .review-carousel-card.card-neighbor-right-1 {
+    transform: translate(calc(-50% + 260px), -50%) scale(0.88);
+    opacity: 0.74;
+    filter: blur(0.3px);
+  }
+
+  /* Outer cards hidden on tablet */
+  .review-carousel-card.card-neighbor-left-2,
+  .review-carousel-card.card-neighbor-right-2 {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+/* Mobile Devices (<= 768px): Center card prominent, side cards partially peeking, no page overflow */
+@media (max-width: 768px) {
+  .avx-reviews-module {
+    padding: 44px 0 52px;
+    overflow: hidden;
+  }
+
+  .reviews-carousel-wrapper {
+    overflow: hidden;
+    width: 100vw;
+    max-width: 100%;
+    padding: 10px 0;
+  }
+
+  .premium-reviews-stage {
+    height: 390px;
+    overflow: hidden;
+  }
+
+  .review-carousel-card {
+    width: 78vw;
+    max-width: 320px;
+    height: 360px;
+    min-height: 360px;
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .review-carousel-card.card-center-active {
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 10;
+    box-shadow: 0 16px 40px -10px rgba(0, 32, 70, 0.45);
+  }
+
+  /* Side cards partially peek from the left and right edges */
+  .review-carousel-card.card-neighbor-left-1 {
+    transform: translate(calc(-50% - 82vw), -50%) scale(0.88);
+    opacity: 0.35;
+    filter: blur(0.8px);
+    z-index: 5;
+  }
+
+  .review-carousel-card.card-neighbor-right-1 {
+    transform: translate(calc(-50% + 82vw), -50%) scale(0.88);
+    opacity: 0.35;
+    filter: blur(0.8px);
+    z-index: 5;
+  }
+
+  /* Outer cards hidden on mobile */
+  .review-carousel-card.card-neighbor-left-2,
+  .review-carousel-card.card-neighbor-right-2 {
+    display: none !important;
+  }
+
+  .card-customer-name {
+    font-size: 15px;
+  }
+
+  .card-customer-type {
+    font-size: 12px;
+  }
+
+  .card-review-text {
+    font-size: 13.5px;
+    -webkit-line-clamp: 6;
+  }
+}

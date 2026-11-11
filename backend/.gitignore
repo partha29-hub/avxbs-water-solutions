@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment & Secret files
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Secret keys
+*.pem
+*.key
+*.cert
+

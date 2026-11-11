@@ -1,0 +1,251 @@
+
+.solution-admin {
+  min-height: 100vh;
+  padding: 35px;
+  background: #09090d;
+  color: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+.solution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.solution-header p {
+  color: #ef4444;
+  font-size: 12px;
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+
+.solution-header h1 {
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.solution-header span {
+  color: #999;
+  font-size: 14px;
+}
+
+.solution-header button,
+.solution-actions button,
+.solution-card-buttons button {
+  background: #dc2626;
+  border: 1px solid #dc2626;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.solution-form-card,
+.solution-list-section {
+  background: #141419;
+  border: 1px solid #292930;
+  border-radius: 14px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.solution-form-card h2,
+.solution-list-heading h2 {
+  font-size: 20px;
+  margin: 0 0 22px;
+}
+
+.solution-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.solution-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: #d4d4d8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.solution-form-grid input,
+.solution-form-grid select,
+.solution-form-grid textarea,
+.solution-list-heading select {
+  width: 100%;
+  padding: 12px;
+  background: #202027;
+  color: white;
+  border: 1px solid #363640;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.solution-form-grid input:focus,
+.solution-form-grid select:focus,
+.solution-form-grid textarea:focus {
+  border-color: #ef4444;
+}
+
+.solution-full {
+  grid-column: 1 / -1;
+}
+
+.solution-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin: 22px 0;
+}
+
+.solution-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  color: #d4d4d8;
+}
+
+.solution-checkboxes input {
+  accent-color: #ef4444;
+  width: 16px;
+  height: 16px;
+}
+
+.solution-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.solution-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.solution-actions button[type="button"] {
+  background: #303038;
+  border-color: #44444e;
+}
+
+.solution-message {
+  padding: 13px 16px;
+  background: #202027;
+  border-left: 4px solid #ef4444;
+  border-radius: 7px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.solution-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.solution-list-heading h2 {
+  margin: 0;
+}
+
+.solution-list-heading select {
+  max-width: 200px;
+}
+
+.solution-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.solution-admin-card {
+  overflow: hidden;
+  background: #1c1c23;
+  border: 1px solid #303038;
+  border-radius: 12px;
+}
+
+.solution-admin-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.solution-card-content {
+  padding: 17px;
+}
+
+.solution-card-content > span {
+  color: #f87171;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.solution-card-content h3 {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+.solution-card-content p {
+  color: #a1a1aa;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.solution-card-status {
+  color: #86efac;
+  font-size: 12px;
+  margin: 15px 0;
+}
+
+.solution-card-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.solution-card-buttons button {
+  flex: 1;
+  padding: 9px;
+}
+
+.solution-card-buttons button:last-child {
+  background: #292930;
+  border-color: #44444e;
+}
+
+@media (max-width: 650px) {
+  .solution-admin {
+    padding: 18px;
+  }
+
+  .solution-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .solution-header h1 {
+    font-size: 24px;
+  }
+
+  .solution-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .solution-full {
+    grid-column: auto;
+  }
+
+  .solution-list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

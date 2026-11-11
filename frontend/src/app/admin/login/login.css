@@ -1,0 +1,273 @@
+
+        .avx-login {
+          min-height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 24px;
+          background: #101114;
+          font-family: Arial, sans-serif;
+        }
+
+        .avx-login-card {
+          width: 100%;
+          max-width: 430px;
+          padding: 42px;
+          background: #1b1c21;
+          border: 1px solid #303139;
+          border-radius: 18px;
+          color: #fff;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .avx-login-logo {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 4px;
+        }
+
+        .avx-login-logo img {
+          height: 48px;
+          width: auto;
+          max-width: 170px;
+          aspect-ratio: 1006 / 397;
+          object-fit: contain;
+          display: block;
+          filter: drop-shadow(0 0 14px rgba(230, 57, 70, 0.25));
+        }
+
+        .avx-login-tagline {
+          margin: 10px 0 32px;
+          color: #858b9b;
+          font-size: 11px;
+          letter-spacing: 3px;
+          text-align: center;
+        }
+
+        h1 {
+          margin: 0 0 10px;
+          font-size: 28px;
+        }
+
+        .avx-login-description {
+          margin-bottom: 30px;
+          color: #aaa;
+          font-size: 14px;
+        }
+
+        label {
+          display: block;
+          margin: 18px 0 9px;
+          font-size: 13px;
+          color: #ddd;
+        }
+
+        input {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 14px;
+          background: #111216;
+          border: 1px solid #383942;
+          border-radius: 8px;
+          color: white;
+          outline: none;
+          font-size: 14px;
+        }
+
+        input:focus {
+          border-color: #e63946;
+        }
+
+        .avx-password-wrapper {
+          position: relative;
+        }
+
+        .avx-password-wrapper input {
+          padding-right: 65px;
+        }
+
+        .avx-show-password {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #e63946;
+          cursor: pointer;
+        }
+
+        .avx-login-error {
+          margin-top: 16px;
+          padding: 12px;
+          border-radius: 7px;
+          background: #3b2024;
+          color: #ff9ca5;
+          font-size: 13px;
+        }
+
+        .avx-login-button {
+          width: 100%;
+          margin-top: 25px;
+          padding: 15px;
+          background: #e63946;
+          border: none;
+          border-radius: 8px;
+          color: white;
+          font-weight: 700;
+          cursor: pointer;
+          font-size: 15px;
+        }
+
+        .avx-login-button:hover {
+          background: #c92d39;
+        }
+
+        .avx-login-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .avx-login-footer {
+          margin: 30px 0 0;
+          text-align: center;
+          color: #777;
+          font-size: 11px;
+        }
+
+        @media (max-width: 480px) {
+          .avx-login-card {
+            padding: 28px 22px;
+          }
+        }
+          /* Animated background */
+.avx-login {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #090b12;
+}
+
+.avx-login::before,
+.avx-login::after {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: -1;
+  animation: floatingGlow 8s ease-in-out infinite alternate;
+}
+
+.avx-login::before {
+  background: rgba(230, 57, 70, 0.35);
+  top: -100px;
+  left: -100px;
+}
+
+.avx-login::after {
+  background: rgba(50, 90, 200, 0.25);
+  bottom: -100px;
+  right: -100px;
+  animation-delay: 2s;
+}
+
+/* Login card entrance */
+.avx-login-card {
+  position: relative;
+  z-index: 1;
+  animation: loginEntrance 0.9s cubic-bezier(.2,.8,.2,1) both;
+  backdrop-filter: blur(20px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.avx-login-card:hover {
+  border-color: rgba(230, 57, 70, 0.5);
+  box-shadow: 0 25px 80px rgba(230, 57, 70, 0.12);
+}
+
+/* Logo animation */
+.avx-login-logo {
+  animation: logoGlow 2.5s ease-in-out infinite alternate;
+}
+
+/* Input animation */
+.avx-login input {
+  transition: all 0.3s ease;
+}
+
+.avx-login input:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(230, 57, 70, 0.15);
+}
+
+/* Button animation */
+.avx-login-button {
+  transition: all 0.3s ease;
+}
+
+.avx-login-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(230, 57, 70, 0.35);
+}
+
+.avx-login-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Error animation */
+.avx-login-error {
+  animation: errorEntrance 0.35s ease both;
+}
+
+/* Keyframes */
+@keyframes loginEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(45px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatingGlow {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(60px, 40px);
+  }
+}
+
+@keyframes logoGlow {
+  from {
+    text-shadow: 0 0 5px rgba(230, 57, 70, 0.2);
+  }
+  to {
+    text-shadow: 0 0 22px rgba(230, 57, 70, 0.7);
+  }
+}
+
+@keyframes errorEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avx-login *,
+  .avx-login::before,
+  .avx-login::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

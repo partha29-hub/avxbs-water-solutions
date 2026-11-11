@@ -1,0 +1,779 @@
+/* =========================================
+   AVXBS PREMIUM ADMIN DASHBOARD
+   Dark Glassmorphism + Red Neon Theme
+========================================= */
+
+.avx-admin {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 80% 0%, rgba(230, 57, 70, 0.12), transparent 35%),
+    radial-gradient(ellipse at 0% 100%, rgba(130, 25, 45, 0.10), transparent 35%),
+    #090b11;
+  color: #f5f5f7;
+  font-family: Arial, sans-serif;
+}
+
+/* Background ambient lights */
+.avx-admin::before,
+.avx-admin::after {
+  content: "";
+  position: fixed;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: -1;
+  animation: avxAmbient 10s ease-in-out infinite alternate;
+}
+
+.avx-admin::before {
+  top: -180px;
+  right: 10%;
+  background: rgba(230, 57, 70, 0.15);
+}
+
+.avx-admin::after {
+  bottom: -220px;
+  left: 25%;
+  background: rgba(120, 20, 50, 0.13);
+  animation-delay: -5s;
+}
+
+@keyframes avxAmbient {
+  from { transform: translate(0, 0) scale(0.9); }
+  to { transform: translate(40px, 35px) scale(1.2); }
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.avx-sidebar {
+  width: 255px;
+  flex-shrink: 0;
+  position: relative;
+  background: rgba(17, 19, 27, 0.92);
+  backdrop-filter: blur(25px);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  box-shadow: 15px 0 50px rgba(0, 0, 0, 0.15);
+}
+
+.avx-brand {
+  padding: 8px 12px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.avx-brand-logo {
+  height: 44px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 16px rgba(255, 70, 87, 0.25));
+}
+
+.avx-brand-sub {
+  color: #858b9b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+  display: block;
+}
+
+.avx-menu-label {
+  color: #858b9b;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.avx-sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.avx-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #a8a9b3;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.avx-menu-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(230, 57, 70, 0.18), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avx-menu-item:hover,
+.avx-menu-item.active {
+  color: #ff7883;
+  border-color: rgba(230, 57, 70, 0.22);
+  background: rgba(230, 57, 70, 0.09);
+  transform: translateX(5px);
+}
+
+.avx-menu-item:hover::before,
+.avx-menu-item.active::before {
+  opacity: 1;
+}
+
+.avx-menu-icon {
+  font-size: 18px;
+  width: 22px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.avx-menu-item:hover .avx-menu-icon {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+.active-dot {
+  width: 7px;
+  height: 7px;
+  background: #ff4657;
+  border-radius: 50%;
+  margin-left: auto;
+  box-shadow: 0 0 12px #ff4657;
+  animation: avxDotPulse 1.8s infinite;
+}
+
+@keyframes avxDotPulse {
+  50% { box-shadow: 0 0 3px #ff4657, 0 0 18px #ff4657; }
+}
+
+.avx-logout {
+  margin-top: auto;
+  padding: 14px;
+  color: #ff727c;
+  background: rgba(230, 57, 70, 0.09);
+  border: 1px solid rgba(230, 57, 70, 0.25);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avx-logout:hover {
+  background: #e63946;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(230, 57, 70, 0.25);
+}
+
+/* =========================================
+   MAIN CONTENT + TOPBAR
+========================================= */
+
+.avx-main {
+  min-width: 0;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.avx-topbar {
+  min-height: 83px;
+  padding: 15px 35px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(15, 17, 24, 0.72);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.avx-topbar h2 {
+  font-size: 17px;
+  margin: 0 0 5px;
+}
+
+.avx-topbar p {
+  color: #888994;
+  font-size: 12px;
+  margin: 0;
+}
+
+.avx-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avx-profile strong,
+.avx-profile small {
+  display: block;
+  font-size: 12px;
+}
+
+.avx-profile small {
+  color: #92939e;
+  margin-top: 5px;
+}
+
+.avx-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #ff6471, #a50e2a);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(230, 57, 70, 0.35);
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.avx-avatar:hover {
+  transform: rotate(12deg) scale(1.08);
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.avx-content {
+  padding: 35px;
+  max-width: 1500px;
+  margin: auto;
+  animation: avxPageEnter 0.7s ease both;
+}
+
+@keyframes avxPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.avx-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  animation: avxFadeUp 0.7s ease both;
+}
+
+.avx-welcome span {
+  color: #ff5869;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+.avx-welcome h1 {
+  font-size: 29px;
+  margin: 12px 0 8px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #fff, #ff7782, #fff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: avxTitleShine 5s linear infinite;
+}
+
+@keyframes avxTitleShine {
+  to { background-position: 200% center; }
+}
+
+.avx-welcome p,
+.avx-panel > p {
+  color: #92939e;
+  font-size: 13px;
+}
+
+.avx-date {
+  color: #999ba6;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 12px 17px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+/* =========================================
+   STATISTICS CARDS
+========================================= */
+
+.avx-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.avx-stat-card,
+.avx-panel {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(28, 30, 40, 0.96), rgba(16, 18, 26, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 15px;
+  padding: 23px;
+  backdrop-filter: blur(15px);
+}
+
+.avx-stat-card {
+  animation: avxCardEnter 0.7s ease both;
+  transition: transform 0.35s ease, border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.avx-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.avx-stat-card:nth-child(2) { animation-delay: 0.2s; }
+.avx-stat-card:nth-child(3) { animation-delay: 0.3s; }
+.avx-stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes avxCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.avx-stat-card::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  right: -70px;
+  width: 150px;
+  height: 150px;
+  background: rgba(230, 57, 70, 0.12);
+  filter: blur(45px);
+  border-radius: 50%;
+  transition: transform 0.5s ease;
+}
+
+.avx-stat-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 3px;
+  background: linear-gradient(transparent, #ff4657, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avx-stat-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 70, 87, 0.55);
+  box-shadow: 0 15px 40px rgba(230, 57, 70, 0.13);
+}
+
+.avx-stat-card:hover::before {
+  transform: scale(1.7);
+}
+
+.avx-stat-card:hover::after {
+  opacity: 1;
+}
+
+.avx-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #a2a3ad;
+  font-size: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.avx-stat-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.22), rgba(230, 57, 70, 0.06));
+  color: #ff7883;
+  border: 1px solid rgba(230, 57, 70, 0.2);
+  border-radius: 11px;
+  font-size: 20px;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.avx-stat-card:hover .avx-stat-icon {
+  transform: rotate(-8deg) scale(1.12);
+  box-shadow: 0 0 22px rgba(230, 57, 70, 0.2);
+}
+
+.avx-stat-card h2 {
+  font-size: 34px;
+  margin: 23px 0 8px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+
+.avx-stat-card small {
+  color: #888994;
+  font-size: 11px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================
+   BOTTOM PANELS
+========================================= */
+
+.avx-bottom-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 18px;
+  margin-top: 23px;
+  animation: avxFadeUp 0.9s ease both;
+}
+
+.avx-panel {
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.avx-panel:hover {
+  border-color: rgba(230, 57, 70, 0.3);
+}
+
+.avx-panel h3 {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.avx-quick-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.avx-quick-links button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+  color: #ddd;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.avx-quick-links button:hover {
+  border-color: rgba(230, 57, 70, 0.55);
+  background: rgba(230, 57, 70, 0.09);
+  color: #ff7883;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(230, 57, 70, 0.09);
+}
+
+.avx-quick-links button b {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.avx-quick-links button:hover b {
+  transform: translateX(5px);
+}
+
+.avx-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.avx-info-icon {
+  color: #ff6873;
+  font-size: 34px;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 0 12px rgba(230, 57, 70, 0.4));
+  animation: avxIconFloat 3s ease-in-out infinite;
+}
+
+@keyframes avxIconFloat {
+  50% { transform: translateY(-7px); }
+}
+
+.avx-info > span {
+  color: #ff6873;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-top: 15px;
+}
+
+/* =========================================
+   MOBILE SIDEBAR
+========================================= */
+
+.avx-mobile-menu,
+.avx-overlay {
+  display: none;
+}
+
+@keyframes avxFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+  .avx-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .avx-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.35s ease;
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+  }
+
+  .avx-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .avx-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 5;
+  }
+
+  .avx-mobile-menu {
+    display: block;
+    background: transparent;
+    color: white;
+    border: 0;
+    font-size: 23px;
+    margin-right: 12px;
+    cursor: pointer;
+  }
+
+  .avx-topbar {
+    justify-content: flex-start;
+    padding: 15px;
+  }
+
+  .avx-profile {
+    margin-left: auto;
+  }
+
+  .avx-profile strong,
+  .avx-profile small {
+    display: none;
+  }
+
+  .avx-content {
+    padding: 22px 15px;
+  }
+
+  .avx-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .avx-welcome h1 {
+    font-size: 24px;
+  }
+
+  .avx-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .avx-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .avx-quick-links {
+    grid-template-columns: 1fr;
+  }
+
+  .avx-stat-card {
+    padding: 20px;
+  }
+}
+
+/* Respect reduced-motion accessibility preference */
+@media (prefers-reduced-motion: reduce) {
+  .avx-admin::before,
+  .avx-admin::after,
+  .avx-brand span,
+  .avx-welcome h1,
+  .avx-info-icon,
+  .avx-stat-card,
+  .avx-content {
+    animation: none !important;
+  }
+
+  .avx-stat-card,
+  .avx-menu-item,
+  .avx-quick-links button {
+    transition: none !important;
+  }
+}
+
+/* =========================================
+   AVXBS DASHBOARD FINAL IMPROVEMENTS
+========================================= */
+
+/* Admin profile */
+.avx-profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.avx-profile-details strong {
+  color: #f5f5f7;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.avx-profile-details small {
+  color: #92939e;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* Welcome section right side */
+.avx-welcome {
+  gap: 25px;
+}
+
+.avx-welcome-text {
+  min-width: 0;
+}
+
+.avx-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* View Website button below AVXBS Management */
+.view-website-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 19px;
+  border: 1px solid rgba(255, 70, 87, 0.38);
+  border-radius: 10px;
+  background: rgba(230, 57, 70, 0.12);
+  color: #ff7883;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.view-website-btn:hover {
+  background: #e63946;
+  color: #ffffff;
+  border-color: #e63946;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(230, 57, 70, 0.25);
+}
+
+.view-website-btn svg {
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+  .avx-welcome-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .avx-welcome {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .view-website-btn {
+    width: fit-content;
+  }
+
+  .avx-profile-details {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .avx-welcome-actions {
+    gap: 12px;
+  }
+
+  .view-website-btn {
+    min-height: 43px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}

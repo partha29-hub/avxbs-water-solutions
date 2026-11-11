@@ -1,0 +1,244 @@
+
+.residential-page {
+  min-height: 100vh;
+  padding: 35px;
+  background: #101116;
+  color: #f5f5f7;
+  font-family: Arial, sans-serif;
+}
+
+.residential-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.residential-header span {
+  color: #f04452;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+.residential-header h1 {
+  font-size: 27px;
+  margin: 10px 0;
+}
+
+.residential-header p,
+.residential-form-card > p,
+.residential-products-heading p {
+  color: #92939e;
+  font-size: 13px;
+}
+
+.residential-header a {
+  color: #ff6873;
+  text-decoration: none;
+}
+
+.residential-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) 1.2fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.residential-form-card,
+.residential-products-card {
+  background: #191a21;
+  border: 1px solid #2a2b34;
+  border-radius: 13px;
+  padding: 25px;
+  animation: residentialFade .5s ease both;
+}
+
+.residential-form-card h2,
+.residential-products-card h2 {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.residential-form-card label {
+  display: block;
+  margin: 18px 0 8px;
+  color: #c4c5cc;
+  font-size: 13px;
+}
+
+.residential-form-card input,
+.residential-form-card textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  background: #101116;
+  border: 1px solid #34353e;
+  border-radius: 8px;
+  color: white;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+}
+
+.residential-form-card input:focus,
+.residential-form-card textarea:focus {
+  border-color: #e63946;
+}
+
+.residential-form-card form > button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #e63946;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.residential-form-card form > button:hover {
+  background: #c92d39;
+  transform: translateY(-2px);
+}
+
+.residential-form-card form > button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.residential-products-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.residential-products-heading button {
+  background: #302025;
+  border: 1px solid #493039;
+  border-radius: 7px;
+  color: #ff6873;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.residential-empty {
+  text-align: center;
+  padding: 55px 15px;
+  color: #92939e;
+}
+
+.residential-empty span {
+  color: #ff6873;
+  font-size: 35px;
+}
+
+.residential-empty h3 {
+  color: white;
+}
+
+.residential-product-list {
+  display: grid;
+  gap: 12px;
+}
+
+.residential-product {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 13px;
+  background: #202129;
+  border: 1px solid #30313a;
+  border-radius: 9px;
+  transition: .25s;
+}
+
+.residential-product:hover {
+  border-color: #e63946;
+  transform: translateY(-2px);
+}
+
+.residential-product img,
+.residential-placeholder {
+  width: 65px;
+  height: 65px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #302025;
+}
+
+.residential-placeholder {
+  display: grid;
+  place-items: center;
+  color: #ff6873;
+  font-size: 25px;
+}
+
+.residential-product h3 {
+  font-size: 14px;
+  margin: 0 0 7px;
+}
+
+.residential-product p {
+  color: #92939e;
+  font-size: 12px;
+  margin: 0 0 7px;
+}
+
+.residential-product small {
+  color: #ff6873;
+}
+
+.residential-error,
+.residential-success {
+  padding: 13px;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.residential-error {
+  background: #3b2024;
+  color: #ff9ca5;
+}
+
+.residential-success {
+  background: #173526;
+  color: #8ee0af;
+}
+
+@keyframes residentialFade {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 850px) {
+  .residential-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 550px) {
+  .residential-page {
+    padding: 20px 14px;
+  }
+
+  .residential-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .residential-header h1 {
+    font-size: 21px;
+  }
+}
