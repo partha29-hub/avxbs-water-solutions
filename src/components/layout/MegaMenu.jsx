@@ -63,7 +63,7 @@ export const RESIDENTIAL_MENU_DATA = {
       "Intelligent microprocessor demand-initiated regeneration with premium food-grade uniform bead cation resins.",
     image:
       "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=80",
-    primaryCta: "Residential Inquiry",
+    primaryCta: "",
     secondaryCta: "Contact Support",
     primaryProduct: "Water Softener",
     secondaryPath: "/contact",
@@ -100,7 +100,7 @@ export const COMMERCIAL_MENU_DATA = {
       image:
         "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300&auto=format&fit=crop&q=80",
       label: "On-Site Audit",
-      buttonText: "Request Audit",
+      buttonText: "Explore",
       buttonAction: "inquiry",
     },
   ],
@@ -114,7 +114,7 @@ export const COMMERCIAL_MENU_DATA = {
       "Engineered for hotels, hospitals, food processing, and industrial boiler feed requiring continuous softened output.",
     image:
       "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=500&auto=format&fit=crop&q=80",
-    primaryCta: "Request Commercial Audit",
+    primaryCta: "",
     secondaryCta: "Contact Engineering",
     primaryProduct: "Commercial Softening Plant",
     secondaryPath: "/contact",
@@ -457,16 +457,31 @@ export default function MegaMenu({
 
   const highlights =
     dynamicHighlights.length > 0
-      ? dynamicHighlights.map((highlight) => ({
-          ...highlight,
-          label: highlight.subtitle || highlight.label || "",
-          icon: iconMap[highlight.icon] || Sparkles,
-        }))
+      ? dynamicHighlights.map((highlight) => {
+          let btnText = highlight.buttonText;
+          if (
+            currentAudience === "Commercial" &&
+            (highlight.title === "Site Water Audit" || /site.*water.*audit/i.test(highlight.title))
+          ) {
+            btnText = ""; // Completely removed button from Site Water Audit card
+          }
+          return {
+            ...highlight,
+            buttonText: btnText,
+            label: highlight.subtitle || highlight.label || "",
+            icon: iconMap[highlight.icon] || Sparkles,
+          };
+        })
       : baseData.highlights;
 
   /* =========================
      FEATURED DISPLAY DATA
   ========================= */
+
+  const isCommercialView =
+    currentAudience === "Commercial" ||
+    activeMenu === "commercial" ||
+    baseData.scope === "Commercial";
 
   const featured = featuredSolution
     ? {
@@ -478,8 +493,14 @@ export default function MegaMenu({
         image:
           featuredSolution.image || baseData.featured.image,
         primaryProduct: featuredSolution.name,
+        primaryCta: "",
+        secondaryCta: baseData.featured.secondaryCta || (isCommercialView ? "Contact Engineering" : "Contact Support"),
       }
-    : baseData.featured;
+    : {
+        ...baseData.featured,
+        primaryCta: "",
+        secondaryCta: baseData.featured.secondaryCta || (isCommercialView ? "Contact Engineering" : "Contact Support"),
+      };
 
   const data = {
     ...baseData,
@@ -815,30 +836,20 @@ export default function MegaMenu({
                   {data.featured.description}
                 </p>
 
-                <div className="featured-card-actions">
-                  {/* Button 1: Dynamic Inquiry Drawer */}
-                  <button
-                    type="button"
-                    className="featured-btn-primary"
-                    onClick={handlePrimaryFeaturedClick}
-                  >
-                    <span>
-                      {data.featured.primaryCta}
-                    </span>
-                    <ArrowRight size={14} />
-                  </button>
-
-                  {/* Button 2: WhatsApp Contact */}
-                  <button
-                    type="button"
-                    className="featured-btn-secondary"
-                    onClick={handleSecondaryFeaturedClick}
-                  >
-                    <span>
-                      {data.featured.secondaryCta}
-                    </span>
-                  </button>
-                </div>
+                {/* Single action button: "Contact Support" for Residential, "Contact Engineering" for Commercial */}
+                {data.featured.secondaryCta && (
+                  <div className="featured-card-actions">
+                    <button
+                      type="button"
+                      className="featured-btn-secondary"
+                      onClick={handleSecondaryFeaturedClick}
+                    >
+                      <span>
+                        {data.featured.secondaryCta}
+                      </span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

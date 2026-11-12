@@ -20,7 +20,10 @@ export default function ReviewsSection() {
   });
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
+
+  const isPaused = isHovered || isInteracting;
 
   // Drag and Swipe tracking refs
   const isDragging = useRef(false);
@@ -84,10 +87,12 @@ export default function ReviewsSection() {
 
   const totalReviews = reviews.length;
 
-  // Duplicate array if fewer than 5 reviews to ensure all 5 card slots (-2, -1, 0, 1, 2) exist
+  // Replicate client-side array if total reviews < 10 to ensure seamless 5-card carousel
+  // with smooth buffer entrance/exit and zero center jumping.
+  // Original review records in MongoDB remain completely untouched.
   let displayItems = reviews;
-  if (totalReviews > 1 && totalReviews < 5) {
-    const multiplier = Math.ceil(6 / totalReviews);
+  if (totalReviews > 1 && totalReviews < 10) {
+    const multiplier = Math.ceil(10 / totalReviews);
     displayItems = Array(multiplier).fill(reviews).flat();
   }
   const count = displayItems.length;
@@ -111,16 +116,38 @@ export default function ReviewsSection() {
     }
   }, [count, activeIndex]);
 
-  // Automatic sliding (5.5s), paused on hover, drag or touch
+  // Continuous automatic sliding: moves to next review every 4.5 seconds.
+  // Automatically pauses during desktop mouse hover and touch/drag interaction,
+  // resumes when user moves away, and resets timer on activeIndex change so manual clicks don't double-slide.
+  // Cleaned up properly on unmount to prevent any memory leaks.
   useEffect(() => {
     if (totalReviews <= 1 || isPaused) return;
 
-    const interval = setInterval(() => {
+    const timer = setTimeout(() => {
       handleNext();
-    }, 5500);
+    }, 4500);
 
-    return () => clearInterval(interval);
-  }, [totalReviews, isPaused, handleNext]);
+    return () => clearTimeout(timer);
+  }, [totalReviews, isPaused, activeIndex, handleNext]);
+
+  // Hover detection: only pause on actual hover-capable devices (desktop mouse/trackpad)
+  const handleMouseEnter = () => {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      !window.matchMedia("(hover: hover)").matches
+    ) {
+      return;
+    }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (isDragging.current) {
+      handleMouseUp();
+    }
+  };
 
   // Mouse Drag handlers
   const handleMouseDown = (e) => {
@@ -128,7 +155,7 @@ export default function ReviewsSection() {
     hasDragged.current = false;
     dragStartX.current = e.clientX;
     dragEndX.current = e.clientX;
-    setIsPaused(true);
+    setIsInteracting(true);
   };
 
   const handleMouseMove = (e) => {
@@ -140,32 +167,26 @@ export default function ReviewsSection() {
   };
 
   const handleMouseUp = () => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    const diff = dragStartX.current - dragEndX.current;
-    if (Math.abs(diff) > 40) {
-      if (diff > 0) {
-        handleNext();
-      } else {
-        handlePrev();
-      }
-    }
-    setTimeout(() => {
-      hasDragged.current = false;
-    }, 60);
-    setIsPaused(false);
-  };
-
-  const handleMouseLeave = () => {
     if (isDragging.current) {
-      handleMouseUp();
+      isDragging.current = false;
+      const diff = dragStartX.current - dragEndX.current;
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+      }
+      setTimeout(() => {
+        hasDragged.current = false;
+      }, 80);
     }
-    setIsPaused(false);
+    setIsInteracting(false);
   };
 
   // Touch Swipe handlers
   const handleTouchStart = (e) => {
-    setIsPaused(true);
+    setIsInteracting(true);
     hasDragged.current = false;
     touchStartX.current = e.touches[0].clientX;
     touchEndX.current = e.touches[0].clientX;
@@ -189,8 +210,8 @@ export default function ReviewsSection() {
     }
     setTimeout(() => {
       hasDragged.current = false;
-    }, 60);
-    setIsPaused(false);
+    }, 80);
+    setIsInteracting(false);
   };
 
   // Side card click navigation (ignored if dragged)
@@ -243,7 +264,7 @@ export default function ReviewsSection() {
         ) : (
           <div
             className="reviews-carousel-wrapper"
-            onMouseEnter={() => setIsPaused(true)}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -260,7 +281,7 @@ export default function ReviewsSection() {
                 if (diff < -Math.floor(count / 2)) diff += count;
                 if (diff > Math.floor(count / 2)) diff -= count;
 
-                // Determine card position role across 5 visible slots
+                // Determine card position role across 5 visible slots and off-screen buffers
                 let roleClass = "card-hidden";
                 let isClickable = false;
                 let clickDelta = 0;
@@ -283,6 +304,10 @@ export default function ReviewsSection() {
                   roleClass = "card-neighbor-right card-neighbor-right-2";
                   isClickable = true;
                   clickDelta = 2;
+                } else if (diff === -3) {
+                  roleClass = "card-buffer-left";
+                } else if (diff === 3) {
+                  roleClass = "card-buffer-right";
                 }
 
                 const ratingCount = Math.min(5, Math.max(1, rev.rating || 5));

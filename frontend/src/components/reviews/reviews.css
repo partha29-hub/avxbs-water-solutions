@@ -334,7 +334,26 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. Hidden Cards (|diff| > 2)
+   3. Buffer Off-Screen Cards (Smooth entrance & exit without horizontal jump)
+   -------------------------------------------------------------------------- */
+.review-carousel-card.card-buffer-left {
+  transform: translate(calc(-50% - 740px), -50%) scale(0.62);
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.review-carousel-card.card-buffer-right {
+  transform: translate(calc(-50% + 740px), -50%) scale(0.62);
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+/* --------------------------------------------------------------------------
+   4. Hidden Cards (|diff| > 3)
    -------------------------------------------------------------------------- */
 .review-carousel-card.card-hidden {
   transform: translate(-50%, -50%) scale(0.5);

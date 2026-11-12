@@ -80,6 +80,24 @@ const bannerSchema = new mongoose.Schema(
       default: 0,
       index: true,
     },
+    // Video audio & playback configuration
+    audioEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    enableAudio: {
+      type: Boolean,
+      default: true,
+    },
+    defaultSound: {
+      type: String,
+      enum: ["muted", "unmuted"],
+      default: "muted",
+    },
+    autoplay: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
@@ -96,6 +114,12 @@ bannerSchema.pre("save", function (next) {
   }
   if (this.publicId && !this.desktopImagePublicId) {
     this.desktopImagePublicId = this.publicId;
+  }
+  if (this.audioEnabled !== undefined && this.enableAudio === undefined) {
+    this.enableAudio = this.audioEnabled;
+  }
+  if (this.enableAudio !== undefined && this.audioEnabled === undefined) {
+    this.audioEnabled = this.enableAudio;
   }
   next();
 });

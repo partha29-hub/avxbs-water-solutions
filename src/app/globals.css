@@ -5788,6 +5788,7 @@ button, input, select, textarea, optgroup {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
+  justify-content: center !important;
   text-align: center !important;
   width: 100% !important;
   padding: 0 !important;
@@ -5968,6 +5969,8 @@ button, input, select, textarea, optgroup {
   border: 1px solid #e5edf2;
   border-radius: 11px;
   background: #f7f9fb;
+  display: flex;
+  flex-direction: column;
 }
 
 .featured-image-wrap {
@@ -6007,6 +6010,9 @@ button, input, select, textarea, optgroup {
 
 .featured-card-body {
   padding: 13px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .featured-title {
@@ -6026,7 +6032,7 @@ button, input, select, textarea, optgroup {
 }
 
 .featured-desc {
-  margin: 0 0 12px;
+  margin: 0;
   color: #74838d;
   font-size: 10px;
   line-height: 1.55;
@@ -6036,6 +6042,7 @@ button, input, select, textarea, optgroup {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  margin-top: 12px;
 }
 
 .featured-btn-primary,
@@ -6194,6 +6201,10 @@ button, input, select, textarea, optgroup {
 
   .featured-card-actions {
     flex-direction: row;
+  }
+
+  .featured-card-actions button {
+    flex: 1;
   }
 }
 
@@ -6676,7 +6687,7 @@ button, input, select, textarea, optgroup {
   border-radius: 20px !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
   user-select: none !important;
 }
 
@@ -6684,19 +6695,90 @@ button, input, select, textarea, optgroup {
   width: 9px !important;
   height: 9px !important;
   padding: 0 !important;
+  margin: 0 !important;
   border: 0 !important;
   border-radius: 50% !important;
   background: rgba(255, 255, 255, 0.55) !important;
-  cursor: default !important;
-  pointer-events: none !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  outline: none !important;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hero-media-dot:hover {
+  background: rgba(255, 255, 255, 0.85) !important;
+  transform: scale(1.2) !important;
 }
 
 .hero-media-dot.active {
   width: 24px !important;
   border-radius: 10px !important;
   background: #ffffff !important;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.95) !important;
+  transform: scale(1) !important;
+}
+
+.hero-media-dot:focus-visible {
+  box-shadow: 0 0 0 2px #38bdf8 !important;
+}
+
+/* Hero Floating Video Audio (Mute / Unmute) Toggle Button */
+.hero-audio-control-btn {
+  position: absolute !important;
+  bottom: 20px !important;
+  right: 24px !important;
+  z-index: 25 !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(10, 14, 24, 0.65) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  outline: none !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.hero-audio-control-btn:hover {
+  background: rgba(255, 70, 87, 0.85) !important;
+  border-color: rgba(255, 70, 87, 1) !important;
+  color: #ffffff !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 6px 24px rgba(255, 70, 87, 0.5) !important;
+}
+
+.hero-audio-control-btn:active {
+  transform: scale(0.96) !important;
+}
+
+.hero-audio-control-btn.is-unmuted {
+  background: rgba(14, 165, 233, 0.75) !important;
+  border-color: rgba(56, 189, 248, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.5) !important;
+}
+
+.hero-audio-control-btn.is-unmuted:hover {
+  background: rgba(2, 132, 199, 0.9) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.6) !important;
+}
+
+.hero-audio-control-btn .hero-audio-icon {
+  width: 18px !important;
+  height: 18px !important;
+  pointer-events: none !important;
+  transition: transform 0.2s ease !important;
+}
+
+.hero-audio-control-btn:hover .hero-audio-icon {
+  transform: scale(1.1) !important;
 }
 
 /* Responsive Breakpoints */
@@ -6743,6 +6825,18 @@ button, input, select, textarea, optgroup {
 
   .hero-media-dots {
     bottom: 10px !important;
+  }
+
+  .hero-audio-control-btn {
+    bottom: 10px !important;
+    right: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .hero-audio-control-btn .hero-audio-icon {
+    width: 16px !important;
+    height: 16px !important;
   }
 }
 

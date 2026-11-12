@@ -56,6 +56,25 @@ function generateVideoPoster(videoUrl) {
   return "";
 }
 
+// Helper: Resequence all banners in ascending order (1, 2, 3...)
+// Guarantees zero duplicate order values and strict 1-based sequential ordering without gaps.
+async function resequenceBanners() {
+  try {
+    const banners = await Banner.find().sort({ order: 1, updatedAt: -1, createdAt: -1 });
+    const bulkOps = banners.map((b, idx) => ({
+      updateOne: {
+        filter: { _id: b._id },
+        update: { $set: { order: idx + 1 } },
+      },
+    }));
+    if (bulkOps.length > 0) {
+      await Banner.bulkWrite(bulkOps);
+    }
+  } catch (err) {
+    console.error("[resequenceBanners Error]", err);
+  }
+}
+
 // ============================================================================
 // PUBLIC CONTROLLERS
 // ============================================================================
@@ -87,8 +106,12 @@ export const getPublicBanners = async (req, res, next) => {
         desktopImageUrl: url,
         mediaType: isVid ? "video" : "image",
         posterUrl: b.posterUrl || (isVid ? generateVideoPoster(url) : ""),
-        order: b.order || 0,
+        order: Number(b.order) || 1,
         isActive: b.isActive,
+        audioEnabled: b.audioEnabled !== undefined ? b.audioEnabled : (b.enableAudio !== undefined ? b.enableAudio : true),
+        enableAudio: b.audioEnabled !== undefined ? b.audioEnabled : (b.enableAudio !== undefined ? b.enableAudio : true),
+        defaultSound: b.defaultSound || "muted",
+        autoplay: b.autoplay !== undefined ? b.autoplay : true,
         createdAt: b.createdAt,
       };
     });
@@ -159,6 +182,11 @@ export const getAdminBanners = async (req, res, next) => {
         desktopImageUrl: url,
         mediaType: isVid ? "video" : "image",
         posterUrl: b.posterUrl || (isVid ? generateVideoPoster(url) : ""),
+        order: Number(b.order) || 1,
+        audioEnabled: b.audioEnabled !== undefined ? b.audioEnabled : (b.enableAudio !== undefined ? b.enableAudio : true),
+        enableAudio: b.audioEnabled !== undefined ? b.audioEnabled : (b.enableAudio !== undefined ? b.enableAudio : true),
+        defaultSound: b.defaultSound || "muted",
+        autoplay: b.autoplay !== undefined ? b.autoplay : true,
       };
     });
 
@@ -240,6 +268,10 @@ export const createBanner = async (req, res, next) => {
       buttonLink,
       isActive,
       order,
+      audioEnabled,
+      enableAudio,
+      defaultSound,
+      autoplay,
     } = req.body;
 
     let mediaUrl = req.body.mediaUrl || req.body.desktopImageUrl || "";
@@ -287,6 +319,29 @@ export const createBanner = async (req, res, next) => {
         ? isActive === "true"
         : Boolean(isActive);
 
+    const rawAudioEnabled = audioEnabled !== undefined ? audioEnabled : enableAudio;
+    const audioEnabledBool =
+      rawAudioEnabled === undefined
+        ? true
+        : typeof rawAudioEnabled === "string"
+        ? rawAudioEnabled === "true"
+        : Boolean(rawAudioEnabled);
+
+    const autoplayBool =
+      autoplay === undefined
+        ? true
+        : typeof autoplay === "string"
+        ? autoplay === "true"
+        : Boolean(autoplay);
+
+    const defaultSoundVal = defaultSound === "unmuted" ? "unmuted" : "muted";
+
+    // Auto-reorder: If order specified, shift existing banners at or after targetOrder up by 1
+    const totalCount = await Banner.countDocuments();
+    const targetOrder = Math.max(1, order !== undefined && !isNaN(Number(order)) ? Number(order) : totalCount + 1);
+
+    await Banner.updateMany({ order: { $gte: targetOrder } }, { $inc: { order: 1 } });
+
     const banner = await Banner.create({
       title: title ? title.trim() : "",
       subtitle: subtitle ? subtitle.trim() : "",
@@ -301,13 +356,21 @@ export const createBanner = async (req, res, next) => {
       buttonText: buttonText ? buttonText.trim() : "",
       buttonLink: buttonLink ? buttonLink.trim() : "",
       isActive: activeBool,
-      order: Number(order) || 0,
+      order: targetOrder,
+      audioEnabled: audioEnabledBool,
+      enableAudio: audioEnabledBool,
+      defaultSound: defaultSoundVal,
+      autoplay: autoplayBool,
     });
+
+    // Ensure completely unique continuous sequential ordering 1, 2, 3...
+    await resequenceBanners();
+    const savedBanner = await Banner.findById(banner._id);
 
     return res.status(201).json({
       success: true,
       message: "Banner created and published directly to homepage slider.",
-      banner,
+      banner: savedBanner || banner,
     });
   } catch (error) {
     next(error);
@@ -334,6 +397,10 @@ export const updateBanner = async (req, res, next) => {
       buttonLink,
       isActive,
       order,
+      audioEnabled,
+      enableAudio,
+      defaultSound,
+      autoplay,
     } = req.body;
 
     let mediaUrl = req.body.mediaUrl || req.body.desktopImageUrl;
@@ -380,7 +447,43 @@ export const updateBanner = async (req, res, next) => {
       banner.isActive =
         typeof isActive === "string" ? isActive === "true" : Boolean(isActive);
     }
-    if (order !== undefined) banner.order = Number(order) || 0;
+
+    // Auto-reorder: If order changed, shift other banners automatically
+    const oldOrder = Number(banner.order) || 1;
+    if (order !== undefined && !isNaN(Number(order))) {
+      const targetOrder = Math.max(1, Number(order));
+      if (targetOrder !== oldOrder) {
+        if (targetOrder < oldOrder) {
+          // Moving up (e.g. 3 -> 1): shift intermediate banners up by +1
+          await Banner.updateMany(
+            { _id: { $ne: banner._id }, order: { $gte: targetOrder, $lt: oldOrder } },
+            { $inc: { order: 1 } }
+          );
+        } else {
+          // Moving down (e.g. 1 -> 3): shift intermediate banners down by -1
+          await Banner.updateMany(
+            { _id: { $ne: banner._id }, order: { $gt: oldOrder, $lte: targetOrder } },
+            { $inc: { order: -1 } }
+          );
+        }
+        banner.order = targetOrder;
+      }
+    }
+
+    const rawAudioEnabled = audioEnabled !== undefined ? audioEnabled : enableAudio;
+    if (rawAudioEnabled !== undefined) {
+      const boolVal =
+        typeof rawAudioEnabled === "string" ? rawAudioEnabled === "true" : Boolean(rawAudioEnabled);
+      banner.audioEnabled = boolVal;
+      banner.enableAudio = boolVal;
+    }
+    if (defaultSound !== undefined) {
+      banner.defaultSound = defaultSound === "unmuted" ? "unmuted" : "muted";
+    }
+    if (autoplay !== undefined) {
+      banner.autoplay =
+        typeof autoplay === "string" ? autoplay === "true" : Boolean(autoplay);
+    }
 
     if (mediaUrl) {
       banner.mediaUrl = mediaUrl;
@@ -398,11 +501,13 @@ export const updateBanner = async (req, res, next) => {
     }
 
     await banner.save();
+    await resequenceBanners();
+    const refreshedBanner = await Banner.findById(banner._id);
 
     return res.json({
       success: true,
       message: "Banner updated successfully.",
-      banner,
+      banner: refreshedBanner || banner,
     });
   } catch (error) {
     next(error);
@@ -435,6 +540,43 @@ export const toggleBannerActive = async (req, res, next) => {
 };
 
 /**
+ * Admin PATCH: Toggle audioEnabled status for video banner
+ */
+export const toggleBannerAudio = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const banner = await Banner.findById(id);
+
+    if (!banner) {
+      return res.status(404).json({ success: false, message: "Banner not found." });
+    }
+
+    let newAudio;
+    if (req.body && (req.body.audioEnabled !== undefined || req.body.enableAudio !== undefined)) {
+      const val = req.body.audioEnabled !== undefined ? req.body.audioEnabled : req.body.enableAudio;
+      newAudio = typeof val === "string" ? val === "true" : Boolean(val);
+    } else {
+      const current = banner.audioEnabled !== false && banner.enableAudio !== false;
+      newAudio = !current;
+    }
+
+    banner.audioEnabled = newAudio;
+    banner.enableAudio = newAudio;
+    await banner.save();
+
+    return res.json({
+      success: true,
+      message: `Audio controls ${newAudio ? "enabled" : "disabled"} successfully.`,
+      banner,
+      audioEnabled: newAudio,
+      enableAudio: newAudio,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Admin DELETE: Remove banner and cleanup Cloudinary media
  */
 export const deleteBanner = async (req, res, next) => {
@@ -459,6 +601,7 @@ export const deleteBanner = async (req, res, next) => {
     }
 
     await Banner.findByIdAndDelete(id);
+    await resequenceBanners();
 
     return res.json({
       success: true,

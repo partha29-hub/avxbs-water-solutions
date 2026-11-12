@@ -19,6 +19,8 @@ import {
   Play,
   X,
   Layers,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 const initialForm = {
@@ -29,6 +31,10 @@ const initialForm = {
   publicId: "",
   posterUrl: "",
   posterPublicId: "",
+  audioEnabled: true,
+  enableAudio: true,
+  defaultSound: "muted",
+  autoplay: true,
 };
 
 export default function BannersClient({ admin }) {
@@ -62,6 +68,12 @@ export default function BannersClient({ admin }) {
   // File input refs
   const mediaFileRef = useRef(null);
   const posterFileRef = useRef(null);
+
+  // Video preview audio state for Edit/Add modal
+  const modalVideoTesterRef = useRef(null);
+  const [modalVideoMuted, setModalVideoMuted] = useState(true);
+  const primaryVideoRef = useRef(null);
+  const [primaryVideoMuted, setPrimaryVideoMuted] = useState(true);
 
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -144,13 +156,16 @@ export default function BannersClient({ admin }) {
     setLocalMediaPreview("");
     setSelectedPosterFile(null);
     setLocalPosterPreview("");
+    setModalVideoMuted(true);
+    setPrimaryVideoMuted(true);
     setFormData({
       ...initialForm,
       mediaType: presetType,
-      order:
-        banners.length > 0
-          ? Math.max(...banners.map((b) => Number(b.order) || 0)) + 1
-          : 0,
+      audioEnabled: true,
+      enableAudio: true,
+      defaultSound: "muted",
+      autoplay: true,
+      order: banners.length > 0 ? banners.length + 1 : 1,
     });
     setIsFormOpen(true);
   };
@@ -162,14 +177,26 @@ export default function BannersClient({ admin }) {
     setLocalMediaPreview("");
     setSelectedPosterFile(null);
     setLocalPosterPreview("");
+    setModalVideoMuted(true);
+    setPrimaryVideoMuted(true);
+
+    const isAudioOn =
+      banner.audioEnabled !== undefined
+        ? banner.audioEnabled !== false
+        : banner.enableAudio !== false;
+
     setFormData({
-      order: banner.order !== undefined ? banner.order : 0,
+      order: Number(banner.order) || 1,
       isActive: banner.isActive !== undefined ? banner.isActive : true,
       mediaType: banner.mediaType || "image",
       mediaUrl: banner.mediaUrl || banner.desktopImageUrl || "",
       publicId: banner.publicId || banner.desktopImagePublicId || "",
       posterUrl: banner.posterUrl || "",
       posterPublicId: banner.posterPublicId || "",
+      audioEnabled: isAudioOn,
+      enableAudio: isAudioOn,
+      defaultSound: banner.defaultSound || "muted",
+      autoplay: banner.autoplay !== undefined ? banner.autoplay : true,
     });
     setIsFormOpen(true);
   };
@@ -209,6 +236,78 @@ export default function BannersClient({ admin }) {
       setBanners(originalBanners);
       showNotice("error", err.message || "Failed to toggle status.");
     }
+  };
+
+  // Toggle video audio controls on public website directly from banner card
+  const handleToggleAudio = async (banner) => {
+    const currentAudio =
+      banner.audioEnabled !== false && banner.enableAudio !== false;
+    const newAudio = !currentAudio;
+    const originalBanners = [...banners];
+
+    // Optimistic UI update
+    setBanners((prev) =>
+      prev.map((b) =>
+        b._id === banner._id
+          ? { ...b, audioEnabled: newAudio, enableAudio: newAudio }
+          : b
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/admin/banners/${banner._id}/toggle-audio`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audioEnabled: newAudio, enableAudio: newAudio }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to toggle audio controls.");
+      }
+
+      broadcastUpdate();
+      showNotice(
+        "success",
+        `Website audio controls turned ${newAudio ? "ON (speaker icon visible on website)" : "OFF (forced muted on website)"}.`
+      );
+    } catch (err) {
+      setBanners(originalBanners);
+      showNotice("error", err.message || "Failed to toggle audio controls.");
+    }
+  };
+
+  // Toggle audio directly inside the Edit/Add Hero Banner video preview without restarting
+  const handleToggleModalVideoAudio = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!modalVideoTesterRef.current) return;
+    const vid = modalVideoTesterRef.current;
+    const nextMuted = !vid.muted;
+    vid.muted = nextMuted;
+    if (!nextMuted) {
+      vid.volume = 1;
+      if (vid.paused) {
+        vid.play().catch(() => {});
+      }
+    }
+    setModalVideoMuted(nextMuted);
+  };
+
+  const handleTogglePrimaryVideoAudio = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!primaryVideoRef.current) return;
+    const vid = primaryVideoRef.current;
+    const nextMuted = !vid.muted;
+    vid.muted = nextMuted;
+    if (!nextMuted) {
+      vid.volume = 1;
+      if (vid.paused) {
+        vid.play().catch(() => {});
+      }
+    }
+    setPrimaryVideoMuted(nextMuted);
   };
 
   // Select media file with instant local preview
@@ -285,6 +384,20 @@ export default function BannersClient({ admin }) {
       } else if (formData.posterUrl) {
         submitData.append("posterUrl", formData.posterUrl);
         submitData.append("posterPublicId", formData.posterPublicId || "");
+      }
+
+      if (formData.mediaType === "video") {
+        const audioState = formData.audioEnabled !== false && formData.enableAudio !== false;
+        submitData.append("audioEnabled", audioState ? "true" : "false");
+        submitData.append("enableAudio", audioState ? "true" : "false");
+        submitData.append(
+          "defaultSound",
+          formData.defaultSound === "unmuted" ? "unmuted" : "muted"
+        );
+        submitData.append(
+          "autoplay",
+          formData.autoplay !== false ? "true" : "false"
+        );
       }
 
       const url = editingBanner
@@ -583,6 +696,63 @@ export default function BannersClient({ admin }) {
                     </span>
                   </div>
 
+                  {isVideo && (
+                    <div className="banner-audio-card-control">
+                      <div className="audio-card-ctrl-header">
+                        <span className="audio-card-ctrl-title">Website Audio Controls</span>
+                        <span
+                          className={`audio-status-pill ${
+                            banner.audioEnabled !== false && banner.enableAudio !== false
+                              ? "is-on"
+                              : "is-off"
+                          }`}
+                        >
+                          {banner.audioEnabled !== false && banner.enableAudio !== false
+                            ? "ON (Speaker Visible)"
+                            : "OFF (Forced Muted)"}
+                        </span>
+                      </div>
+                      <div className="audio-card-toggle-row">
+                        <label
+                          className="audio-card-toggle-label"
+                          title={
+                            banner.audioEnabled !== false && banner.enableAudio !== false
+                              ? "Audio controls enabled on website. Click to turn OFF (forces video muted and hides speaker icon)."
+                              : "Audio controls disabled on website. Click to turn ON (shows speaker icon on website)."
+                          }
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleAudio(banner);
+                          }}
+                        >
+                          <div
+                            className={`status-toggle-switch ${
+                              banner.audioEnabled !== false && banner.enableAudio !== false
+                                ? "is-active"
+                                : ""
+                            }`}
+                          >
+                            <div className="status-toggle-thumb" />
+                          </div>
+                          <span className="audio-card-toggle-action">
+                            {banner.audioEnabled !== false && banner.enableAudio !== false ? (
+                              <>
+                                <Volume2 size={13} color="#10b981" />
+                                <span>Audio Controls: ON</span>
+                              </>
+                            ) : (
+                              <>
+                                <VolumeX size={13} color="#94a3b8" />
+                                <span>Audio Controls: OFF</span>
+                              </>
+                            )}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Footer Actions */}
                   <div className="banner-card-footer">
                     <label
@@ -711,12 +881,38 @@ export default function BannersClient({ admin }) {
                   {localMediaPreview || formData.mediaUrl ? (
                     <div className="media-live-preview-box">
                       {formData.mediaType === "video" ? (
-                        <video
-                          src={localMediaPreview || formData.mediaUrl}
-                          poster={localPosterPreview || formData.posterUrl}
-                          controls
-                          className="uploaded-media-element"
-                        />
+                        <div className="video-player-frame-relative">
+                          <video
+                            ref={primaryVideoRef}
+                            src={localMediaPreview || formData.mediaUrl}
+                            poster={localPosterPreview || formData.posterUrl}
+                            controls
+                            playsInline
+                            className="uploaded-media-element"
+                            onVolumeChange={(e) => {
+                              setPrimaryVideoMuted(e.target.muted || e.target.volume === 0);
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className={`modal-player-audio-toggle ${primaryVideoMuted ? "is-muted" : "is-unmuted"}`}
+                            onClick={handleTogglePrimaryVideoAudio}
+                            title={primaryVideoMuted ? "Click to hear original video sound" : "Click to mute sound"}
+                            aria-label={primaryVideoMuted ? "Unmute video preview" : "Mute video preview"}
+                          >
+                            {primaryVideoMuted ? (
+                              <>
+                                <VolumeX size={15} />
+                                <span>Muted – Click to Listen</span>
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 size={15} />
+                                <span>Unmuted – Playing Audio</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       ) : (
                         <img
                           src={localMediaPreview || formData.mediaUrl}
@@ -851,6 +1047,195 @@ export default function BannersClient({ admin }) {
                   </div>
                 )}
 
+                {/* Video Audio & Playback Settings (Videos Only) */}
+                {formData.mediaType === "video" && (
+                  <div className="video-audio-settings-card">
+                    <div className="video-audio-settings-header">
+                      <div className="video-audio-badge-title">
+                        <Volume2 size={17} className="audio-header-icon" />
+                        <h4>VIDEO AUDIO &amp; PLAYBACK SETTINGS</h4>
+                      </div>
+                      <p className="video-audio-header-desc">
+                        Manage original sound support, default playback volume, and autoplay behavior for the public hero banner.
+                      </p>
+                    </div>
+
+                    {/* Dedicated Video Audio Tester with Playback Controls */}
+                    <div className="video-audio-tester-container">
+                      <div className="tester-header-row">
+                        <span className="tester-header-label">Audio &amp; Video Live Tester</span>
+                        <span className="tester-header-hint">
+                          Preview audio track directly in admin before saving
+                        </span>
+                      </div>
+
+                      {localMediaPreview || formData.mediaUrl ? (
+                        <div className="tester-player-wrapper">
+                          <div className="video-player-frame-relative">
+                            <video
+                              ref={modalVideoTesterRef}
+                              src={localMediaPreview || formData.mediaUrl}
+                              poster={localPosterPreview || formData.posterUrl}
+                              controls
+                              playsInline
+                              className="tester-video-player"
+                              onVolumeChange={(e) => {
+                                setModalVideoMuted(e.target.muted || e.target.volume === 0);
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className={`modal-player-audio-toggle ${modalVideoMuted ? "is-muted" : "is-unmuted"}`}
+                              onClick={handleToggleModalVideoAudio}
+                              title={modalVideoMuted ? "Click to hear original video sound" : "Click to mute sound"}
+                              aria-label={modalVideoMuted ? "Unmute video preview" : "Mute video preview"}
+                            >
+                              {modalVideoMuted ? (
+                                <>
+                                  <VolumeX size={15} />
+                                  <span>Muted – Click to Listen</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Volume2 size={15} />
+                                  <span>Unmuted – Playing Audio</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="tester-empty-box">
+                          <Video size={24} color="#64748b" />
+                          <span>Select or upload a video file above to preview audio playback controls</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="video-audio-settings-grid">
+                      {/* 1. Enable Audio Controls on Website: ON / OFF */}
+                      <div className="audio-setting-row">
+                        <div className="audio-setting-info">
+                          <div className="audio-setting-name">Enable Audio Controls on Website</div>
+                          <div className="audio-setting-subtext">
+                            {formData.audioEnabled !== false && formData.enableAudio !== false
+                              ? "ON: Floating speaker icon appears on the website so visitors can unmute and hear original video audio."
+                              : "OFF: Speaker icon is hidden completely on the website. Video is forced to remain muted."}
+                          </div>
+                        </div>
+                        <div className="audio-setting-ctrl">
+                          <label className="status-toggle-label" title="Toggle audio controls on website">
+                            <div
+                              className={`status-toggle-switch ${
+                                formData.audioEnabled !== false && formData.enableAudio !== false
+                                  ? "is-active"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                const nextState = !(
+                                  formData.audioEnabled !== false && formData.enableAudio !== false
+                                );
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  audioEnabled: nextState,
+                                  enableAudio: nextState,
+                                }));
+                              }}
+                            >
+                              <div className="status-toggle-thumb" />
+                            </div>
+                            <span
+                              className={`toggle-state-text ${
+                                formData.audioEnabled !== false && formData.enableAudio !== false
+                                  ? "is-on"
+                                  : "is-off"
+                              }`}
+                            >
+                              {formData.audioEnabled !== false && formData.enableAudio !== false
+                                ? "ON"
+                                : "OFF"}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* 2. Default Playback Sound: Muted/Unmuted */}
+                      <div className="audio-setting-row">
+                        <div className="audio-setting-info">
+                          <div className="audio-setting-name">Default Playback Sound</div>
+                          <div className="audio-setting-subtext">
+                            Initial audio mode when visitor views this slide. Muted complies with browser autoplay restrictions. Unmuted attempts sound playback if permitted by browser policy.
+                          </div>
+                        </div>
+                        <div className="audio-setting-ctrl">
+                          <div className="segmented-sound-options">
+                            <button
+                              type="button"
+                              className={`segmented-sound-btn ${
+                                formData.defaultSound === "muted" || !formData.defaultSound
+                                  ? "is-active"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                setFormData((prev) => ({ ...prev, defaultSound: "muted" }))
+                              }
+                              disabled={formData.enableAudio === false}
+                              title="Video starts silent (Instant autoplay across all browsers)"
+                            >
+                              <VolumeX size={14} />
+                              <span>Muted (Recommended)</span>
+                            </button>
+                            <button
+                              type="button"
+                              className={`segmented-sound-btn ${
+                                formData.defaultSound === "unmuted" ? "is-active" : ""
+                              }`}
+                              onClick={() =>
+                                setFormData((prev) => ({ ...prev, defaultSound: "unmuted" }))
+                              }
+                              disabled={formData.enableAudio === false}
+                              title="Attempt to start with sound (Requires visitor interaction in some browsers)"
+                            >
+                              <Volume2 size={14} />
+                              <span>Unmuted</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. Autoplay: ON/OFF */}
+                      <div className="audio-setting-row">
+                        <div className="audio-setting-info">
+                          <div className="audio-setting-name">Autoplay Video</div>
+                          <div className="audio-setting-subtext">
+                            Automatically begin video playback when this banner slide transitions into view.
+                          </div>
+                        </div>
+                        <div className="audio-setting-ctrl">
+                          <label className="status-toggle-label" title="Toggle autoplay">
+                            <div
+                              className={`status-toggle-switch ${
+                                formData.autoplay !== false ? "is-active" : ""
+                              }`}
+                              onClick={() =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  autoplay: prev.autoplay === false ? true : false,
+                                }))
+                              }
+                            >
+                              <div className="status-toggle-thumb" />
+                            </div>
+                            <span className={`toggle-state-text ${formData.autoplay !== false ? "is-on" : "is-off"}`}>
+                              {formData.autoplay !== false ? "ON" : "OFF"}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Display Order & Active Toggle */}
                 <div className="form-row-2col">
                   <div className="form-group">
@@ -860,18 +1245,19 @@ export default function BannersClient({ admin }) {
                     <input
                       id="banner-order"
                       type="number"
-                      className="form-input"
+                      min="1"
+                      className="form-input banner-order-input"
                       value={formData.order}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          order: Number(e.target.value) || 0,
+                          order: Math.max(1, Number(e.target.value) || 1),
                         })
                       }
-                      placeholder="0"
+                      placeholder="1"
                     />
                     <span className="field-hint">
-                      Lower order numbers appear first in the carousel.
+                      Sequential order (1, 2, 3...). Moving to an occupied position automatically shifts other banners.
                     </span>
                   </div>
 

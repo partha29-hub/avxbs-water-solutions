@@ -70,6 +70,7 @@ import {
   createBanner,
   updateBanner,
   toggleBannerActive,
+  toggleBannerAudio,
   deleteBanner,
   uploadBannerImage,
   uploadBannerMedia,
@@ -145,6 +146,8 @@ router.post("/banners/upload-image", upload.any(), uploadBannerMedia);
 router.put("/banners/:id", upload.any(), updateBanner);
 router.patch("/banners/:id/toggle-active", toggleBannerActive);
 router.patch("/banners/:id/active", toggleBannerActive);
+router.patch("/banners/:id/toggle-audio", toggleBannerAudio);
+router.patch("/banners/:id/audio", toggleBannerAudio);
 router.delete("/banners/:id", deleteBanner);
 
 // Footer & Assistance

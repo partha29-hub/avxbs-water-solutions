@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 
 const DEFAULT_VIDEO = "/assets/videos/water-softener-promo.mp4";
 const DEFAULT_POSTER = "/assets/videos/hero-poster.jpg";
@@ -26,6 +27,7 @@ export default function AutoVideoPlayer() {
   const [loading, setLoading] = useState(true);
   const [, setIsLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   // Clear slide timeout helper
   const clearSlideTimer = () => {
@@ -63,12 +65,20 @@ export default function AutoVideoPlayer() {
             const isVid =
               b.mediaType === "video" ||
               /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(url);
+            const isAudio =
+              b.audioEnabled !== undefined
+                ? b.audioEnabled !== false
+                : b.enableAudio !== false;
             return {
               _id: b._id,
               mediaUrl: url,
               mediaType: isVid ? "video" : "image",
               posterUrl: b.posterUrl || (isVid ? getPosterForMedia(b) : ""),
-              order: b.order !== undefined ? Number(b.order) : 0,
+              order: b.order !== undefined ? Number(b.order) : 1,
+              audioEnabled: isAudio,
+              enableAudio: isAudio,
+              defaultSound: b.defaultSound || "muted",
+              autoplay: b.autoplay !== undefined ? b.autoplay : true,
             };
           });
 
@@ -88,7 +98,11 @@ export default function AutoVideoPlayer() {
           mediaUrl: DEFAULT_VIDEO,
           mediaType: "video",
           posterUrl: DEFAULT_POSTER,
-          order: 0,
+          order: 1,
+          audioEnabled: true,
+          enableAudio: true,
+          defaultSound: "muted",
+          autoplay: true,
         },
       ]);
     } catch (error) {
@@ -99,7 +113,11 @@ export default function AutoVideoPlayer() {
           mediaUrl: DEFAULT_VIDEO,
           mediaType: "video",
           posterUrl: DEFAULT_POSTER,
-          order: 0,
+          order: 1,
+          audioEnabled: true,
+          enableAudio: true,
+          defaultSound: "muted",
+          autoplay: true,
         },
       ]);
     } finally {
@@ -139,8 +157,32 @@ export default function AutoVideoPlayer() {
   const isVideo =
     current?.mediaType === "video" ||
     /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(current?.mediaUrl || "");
+  const isAudioEnabled =
+    isVideo &&
+    (current?.audioEnabled !== undefined
+      ? current.audioEnabled !== false
+      : current?.enableAudio !== false);
   const mediaSource = current?.mediaUrl || DEFAULT_VIDEO;
   const posterSource = getPosterForMedia(current);
+
+  // Instant mute/unmute toggle without restarting the video
+  const toggleMute = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!videoRef.current || !isAudioEnabled) return;
+
+    const nextMuted = !videoRef.current.muted;
+    videoRef.current.muted = nextMuted;
+    if (!nextMuted) {
+      videoRef.current.volume = 1.0;
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
+      }
+    }
+    setIsMuted(nextMuted);
+  }, [isAudioEnabled]);
 
   // Safely stop and reset previous video before transitioning to the next slide
   const changeSlide = useCallback(
@@ -150,11 +192,14 @@ export default function AutoVideoPlayer() {
         try {
           videoRef.current.pause();
           videoRef.current.currentTime = 0;
+          videoRef.current.muted = true;
         } catch (err) {
           // ignore error if video element is already unmounting
         }
       }
       setIsLoaded(false);
+      // Reset mute state so each video banner starts muted by default
+      setIsMuted(true);
       setCurrentIndex(newIndex);
     },
     []
@@ -166,20 +211,25 @@ export default function AutoVideoPlayer() {
   }, [media.length, currentIndex, changeSlide]);
 
   // Play active video automatically whenever currentIndex changes to a video slide
+  // Always starts muted to comply with browser autoplay restrictions.
   useEffect(() => {
     if (isVideo && videoRef.current) {
       videoRef.current.muted = true;
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          if (videoRef.current) {
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
-          }
-        });
+
+      if (current?.autoplay !== false) {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            if (videoRef.current) {
+              videoRef.current.muted = true;
+              setIsMuted(true);
+              videoRef.current.play().catch(() => {});
+            }
+          });
+        }
       }
     }
-  }, [currentIndex, isVideo]);
+  }, [currentIndex, isVideo, current?.autoplay]);
 
   // Video canplay handler
   function handleVideoReady(event) {
@@ -187,12 +237,15 @@ export default function AutoVideoPlayer() {
     video.muted = true;
     setIsLoaded(true);
 
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        video.muted = true;
-        video.play().catch(() => {});
-      });
+    if (current?.autoplay !== false) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          video.muted = true;
+          setIsMuted(true);
+          video.play().catch(() => {});
+        });
+      }
     }
   }
 
@@ -271,8 +324,8 @@ export default function AutoVideoPlayer() {
             src={mediaSource}
             poster={posterSource}
             className="hero-media-content"
-            autoPlay
-            muted
+            autoPlay={current?.autoplay !== false}
+            muted={!isAudioEnabled || isMuted}
             loop={media.length === 1}
             playsInline
             preload="auto"
@@ -297,24 +350,49 @@ export default function AutoVideoPlayer() {
             }}
           />
         )}
+
+        {/* Floating Speaker / Audio Control Button for Hero Video */}
+        {isVideo && isAudioEnabled && !loading && (
+          <button
+            type="button"
+            className={`hero-audio-control-btn ${!isMuted ? "is-unmuted" : "is-muted"}`}
+            onClick={toggleMute}
+            title={isMuted ? "Click to unmute video" : "Click to mute video"}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
+          >
+            {!isMuted ? (
+              <Volume2 className="hero-audio-icon" size={18} />
+            ) : (
+              <VolumeX className="hero-audio-icon" size={18} />
+            )}
+          </button>
+        )}
       </div>
 
-      {/* Bottom Slider Progress Indicator Dots (non-clickable progress indicators) */}
+      {/* Bottom Slider Interactive Navigation Dots */}
       {!loading && media.length > 1 && (
-        <div
+        <nav
           className="hero-media-dots"
-          aria-hidden="true"
-          style={{ pointerEvents: "none" }}
+          aria-label="Homepage banner slider navigation"
         >
           {media.map((item, index) => (
-            <span
+            <button
               key={item._id || index}
+              type="button"
               className={`hero-media-dot ${
                 index === currentIndex ? "active" : ""
               }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                changeSlide(index);
+              }}
+              title={`Switch to slide ${index + 1} of ${media.length}`}
+              aria-label={`Switch to slide ${index + 1} of ${media.length}`}
+              aria-current={index === currentIndex ? "true" : undefined}
             />
           ))}
-        </div>
+        </nav>
       )}
     </section>
   );
